@@ -22,7 +22,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="#0A0A0A"
-            android:onClick="settingspage"
+            android:onClick="profilepage"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/left_arrow" />
 
@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/darker_gray"
-            android:onClick="likedpostpage"
+            android:onClick="mylikedpostspage"
             android:text="Liked Posts" />
 
         <Button
@@ -47,14 +47,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/darker_gray"
-            android:text="Logout" />
+            android:text="Logout"
+            android:onClick="logoutpage"/>
 
         <Button
             android:id="@+id/delete_acc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/darker_gray"
-            android:text="Delete Account" />
+            android:text="Delete Account"
+            android:onClick="deletepage"/>
 
 
     </LinearLayout>

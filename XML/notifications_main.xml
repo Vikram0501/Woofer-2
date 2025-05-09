@@ -20,7 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/darker_gray"
-            android:text="Follow Requests" />
+            android:text="Follow Requests"
+            android:onClick="requestspage"/>
 
         <!-- Divider -->
         <View

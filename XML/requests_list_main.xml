@@ -14,7 +14,8 @@
         android:layout_height="40dp"
         android:scaleType="fitCenter"
         android:background="#0A0A0A"
-        app:srcCompat="@drawable/left_arrow" />
+        app:srcCompat="@drawable/left_arrow"
+        android:onClick="notificationpage"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/Requests_list"

@@ -38,7 +38,8 @@
         app:layout_constraintEnd_toStartOf="@+id/no_logout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sure"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        android:onClick="signuppage"/>
 
     <Button
         android:id="@+id/no_logout"
@@ -54,5 +55,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/yes_logout"
         app:layout_constraintTop_toBottomOf="@+id/sure"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        android:onClick="settingspage"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
