@@ -1,9 +1,14 @@
-package com.example.woofer;
+package com.example.testing;
+
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,20 +23,27 @@ import okhttp3.Response;
 public class User {
     int UserId;
     String Username;
-    String Password;
     String Email;
 
     ArrayList<Post> posts;
+    ArrayList<Integer> friends;
+    ArrayList<Integer> requests;
 
-    public User(int i, String u, String p, String e){
+    public User(int i, String u, String e){
         UserId = i;
         Username = u;
-        Password = p;
         Email = e;
+        posts = new ArrayList<Post>();
+        friends = new ArrayList<Integer>();
+        requests = new ArrayList<Integer>();
+        importposts();
+        importfriends();
+        importrequests();
     }
 
     public void importposts(){
-        String url = "https://lamp.ms.wits.ac.za/home/s2798790/importposts.php?userid=" + UserId;
+        posts.clear();
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/importposts.php?user_id=" + UserId;
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
@@ -53,8 +65,8 @@ public class User {
                         try {
                             JSONArray ja = new JSONArray(responsebody);
                             ArrayList<String> list = new ArrayList<String>();
-                            Iterator<String> keys = ja.getJSONObject(0).keys();
                             for (int i=0; i<ja.length();i++){
+                                Iterator<String> keys = ja.getJSONObject(i).keys();
                                 while (keys.hasNext()){
                                     list.add(ja.getJSONObject(i).getString(keys.next()));
                                 }
@@ -77,6 +89,111 @@ public class User {
             }
         });
     }
+
+    public void importfriends(){
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/importfriends.php?user_id=" + UserId;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    final String responsebody = response.body().string();
+                    if (!responsebody.equals("NO FRIENDS")){
+                        try {
+                            JSONArray ja = new JSONArray(responsebody);
+                            ArrayList<String> list = new ArrayList<String>();
+                            for (int i=0; i<ja.length();i++){
+                                Iterator<String> keys = ja.getJSONObject(i).keys();
+                                while (keys.hasNext()){
+                                    list.add(ja.getJSONObject(i).getString(keys.next()));
+                                }
+                                int user_sender = Integer.parseInt(list.get(0));
+                                int user_receiver = Integer.parseInt(list.get(1));
+
+                                if (user_sender == UserId){
+                                    friends.add(user_receiver);
+                                }
+                                else if (user_receiver == UserId){
+                                    friends.add(user_sender);
+                                }
+                                list.clear();
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                }
+            }
+        });
+    }
+
+    public void importrequests(){
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/importrequests.php?user_id=" + UserId;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    final String responsebody = response.body().string();
+                    if (!responsebody.equals("NO REQUESTS")){
+                        try {
+                            JSONArray ja = new JSONArray(responsebody);
+                            ArrayList<String> list = new ArrayList<String>();
+                            for (int i=0; i<ja.length();i++){
+                                Iterator<String> keys = ja.getJSONObject(i).keys();
+                                while (keys.hasNext()){
+                                    list.add(ja.getJSONObject(i).getString(keys.next()));
+                                }
+                                int user_sender = Integer.parseInt(list.get(0));
+                                int user_receiver = Integer.parseInt(list.get(1));
+
+                                if (user_sender == UserId){
+                                    requests.add(user_receiver);
+                                }
+                                else if (user_receiver == UserId){
+                                    requests.add(user_sender);
+                                }
+                                list.clear();
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                }
+            }
+        });
+    }
+
+    public int numposts(){
+        return posts.size();
+    }
+    public int numfriends(){
+        return friends.size();
+    }
     public int getUserId() {
         return UserId;
     }
@@ -91,14 +208,6 @@ public class User {
 
     public void setUsername(String username) {
         Username = username;
-    }
-
-    public String getPassword() {
-        return Password;
-    }
-
-    public void setPassword(String password) {
-        Password = password;
     }
 
     public String getEmail() {

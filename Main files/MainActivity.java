@@ -1,51 +1,41 @@
-package com.example.woofer;
+package com.example.testing;
 
-import android.Manifest;
-import android.content.ContentUris;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.PixelCopy;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-
-import com.example.woofer.R;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
     public User currentuser;
-    private static final int REQUEST_READ_STORAGE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,66 +44,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_READ_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                loadImages();
-            } else {
-                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-    private void loadImages() {
-        // Query external images
-        Uri collection;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            collection = MediaStore.Images.Media.getContentUri(
-                    MediaStore.VOLUME_EXTERNAL);
-        } else {
-            collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        }
 
-        String[] projection = new String[]{
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_ADDED
-        };
+    public void editpicture(View v){
+        ImageView profilepic = findViewById(R.id.imageView);
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
-        String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
-
-        try (Cursor cursor = getContentResolver().query(
-                collection,
-                projection,
-                null,
-                null,
-                sortOrder
-        )) {
-            // Get first image
-            if (cursor != null && cursor.moveToFirst()) {
-                long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-                Uri contentUri = ContentUris.withAppendedId(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-
-                // Display in ImageView
-                ImageView imageView = findViewById(R.id.imageView);
-                imageView.setImageURI(contentUri);
-            }
-        }
+        ActivityResultLauncher<Intent> openGallery = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult o) {
+                        Uri uriImage = o.getData().getData();
+                        profilepic.setImageURI(uriImage);
+                    }
+                });
+        openGallery.launch(intent);
     }
 
-    public void editpicture(){
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
 
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    REQUEST_READ_STORAGE);
-        } else{
-            loadImages();
-        }
-    }
     //-------Login Button-------//
     public void login(View v){
         TextView usernametxt =  findViewById(R.id.Usernametxt);
@@ -158,11 +105,9 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                     int user_id = Integer.parseInt(list.get(0));
                                     String username = list.get(1);
-                                    String password = list.get(2);
                                     String email = list.get(3);
 
-                                    currentuser = new User(user_id, username, password, email);
-                                    currentuser.importposts();
+                                    currentuser = new User(user_id, username, email);
                                     profilepage(v);
 
                                 } catch (JSONException e) {
@@ -216,13 +161,13 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             if (responsebody.equals("ERR: USERNAME ALREADY IN USE")){
-                                usernametxt.setText("user already exists");//**Placeholder**
+                                usernametxt.setText("username already in use");
                                 passwordtxt.setText("");
                                 confirmpasstxt.setText("");
                                 emailtxt.setText("");
                             }
                             else if(responsebody.equals("ERR: MISSING FIELDS")){
-                                usernametxt.setText("missing fields");//**Placeholder**
+                                //**Placeholder**
                                 passwordtxt.setText("");
                                 confirmpasstxt.setText("");
                                 emailtxt.setText("");
@@ -234,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
                                 emailtxt.setText("");
                             }
                             else if (responsebody.equals("SUCCESS: USER REGISTERED")){
-                                usernametxt.setText("user added");//**Placeholder**
+                                loginpage(v);//**Placeholder**
                                 passwordtxt.setText("");
                                 confirmpasstxt.setText("");
                                 emailtxt.setText("");
@@ -252,13 +197,47 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void addpost(){
+    public void addpost(View v){
         TextView post = findViewById(R.id.AddPosttxt);
         String content = post.getText().toString();
 
+        //**change from _GET to _POST in PHP**
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/addpost.php?user_id=" + currentuser.getUserId() + "&content=" + content;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    String responsebody = response.body().string();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (responsebody.equals("SUCCESS: POST ADDED")){
+                                post.setText("added");//**Placeholder**
+                                currentuser.importposts();
+                            }
+                            else{
+                                post.setText("error");//**Placeholder**
+                            }
+                        }
+                    });
+                }
+            }
+        });
 
     }
-    //-------Buttons To Move Between Pages-------//
+    //-------Functions To Move Between Pages-------//
     public void signuppage(View v){
         setContentView(R.layout.signupactivity_main);
     }
@@ -277,6 +256,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void profilepage(View v){
         setContentView(R.layout.personal_profile_main2);
+        TextView username = findViewById(R.id.username);
+        Button friendnum = findViewById(R.id.FollowerCount_btn);
+        TextView postnum = findViewById(R.id.PostsCount_txt);
+        RecyclerView myposts = findViewById(R.id.postRecyclerView);
+
+        RecyclerView recyclerView = findViewById(R.id.postRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        MyPostAdapter adapter = new MyPostAdapter(this, currentuser);
+        recyclerView.setAdapter(adapter);
+
+        username.setText(currentuser.getUsername());
+        postnum.setText(Integer.toString(currentuser.numposts()));
+        friendnum.setText(Integer.toString(currentuser.numfriends()));
+
+
     }
 
     public void notificationpage(View v){
@@ -290,8 +284,73 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.settings_main);
     }
 
-    public void likedpostpage(View v){
+    public void mylikedpostspage(View v){
         setContentView(R.layout.list_my_liked_posts_main);
     }
+    public void requestspage(View v){
+        setContentView(R.layout.requests_list_main);
 
+        RecyclerView friendrequestlist = findViewById(R.id.Requests_list);
+        ArrayList<User> requests = new ArrayList<>();
+
+        requests = getuser(currentuser.requests, requests);
+
+        FriendRequestAdapter adapter = new FriendRequestAdapter(this, requests);
+
+    }
+
+    public void deletepage(View v){
+        setContentView(R.layout.delete_acc_main);
+    }
+    public void logoutpage(View v){
+        setContentView(R.layout.logout_main);
+    }
+
+    protected ArrayList<User> getuser(ArrayList<Integer> user_ids, ArrayList<User> users){
+        for (Integer user_id : user_ids){
+            String url = "https://lamp.ms.wits.ac.za/home/s2798790/getuser.php?user_id=" + user_id;
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (response.isSuccessful()){
+                        String responsebody = response.body().string();
+                        if (responsebody.equals("ERR: USER NOT FOUND")){
+                        }
+                        else{
+                            try {
+                                JSONObject jo = new JSONObject(responsebody);
+                                ArrayList<String> list = new ArrayList<String>();
+                                Iterator<String> keys = jo.keys();
+                                while (keys.hasNext()){
+                                    list.add(jo.getString(keys.next()));
+                                }
+                                int user_id = Integer.parseInt(list.get(0));
+                                String username = list.get(1);
+                                String email = list.get(3);
+
+                                User user = new User(user_id, username, email);
+                                users.add(user);
+
+                            } catch (JSONException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        return users;
+    }
 }
