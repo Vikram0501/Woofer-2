@@ -5,14 +5,14 @@ public class Post {
     int user_id;
     String content;
 
-    String datatime;
+    String datetime;
     int likes;
 
     public Post(int p, int u, String c, String dt, int l){
         post_id = p;
         user_id = u;
         content = c;
-        datatime = dt;
+        datetime = dt;
         likes = l;
     }
     public int getPost_id() {
@@ -39,12 +39,12 @@ public class Post {
         this.content = content;
     }
 
-    public String getDatatime() {
-        return datatime;
+    public String getDatetime() {
+        return datetime;
     }
 
-    public void setDatatime(String datatime) {
-        this.datatime = datatime;
+    public void setDatetime(String datatime) {
+        this.datetime = datatime;
     }
 
     public int getLikes() {

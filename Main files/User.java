@@ -1,5 +1,6 @@
 package com.example.testing;
 
+import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,6 +30,7 @@ public class User {
     ArrayList<Integer> friends;
     ArrayList<Integer> requests;
 
+
     public User(int i, String u, String e){
         UserId = i;
         Username = u;
@@ -36,9 +38,7 @@ public class User {
         posts = new ArrayList<Post>();
         friends = new ArrayList<Integer>();
         requests = new ArrayList<Integer>();
-        importposts();
-        importfriends();
-        importrequests();
+
     }
 
     public void importposts(){
@@ -130,6 +130,7 @@ public class User {
                                 list.clear();
                             }
                         } catch (JSONException e) {
+                            Log.d("HTTP_BODY", "Raw response: " + responsebody);
                             throw new RuntimeException(e);
                         }
                     }
@@ -216,5 +217,17 @@ public class User {
 
     public void setEmail(String email) {
         Email = email;
+    }
+
+    public ArrayList<Post> getPosts() {
+        return posts;
+    }
+
+    public ArrayList<Integer> getFriends() {
+        return friends;
+    }
+
+    public ArrayList<Integer> getRequests() {
+        return requests;
     }
 }

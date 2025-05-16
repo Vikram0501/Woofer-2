@@ -1,4 +1,4 @@
-package com.example.woofer;
+package com.example.testing;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.testing.Post;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
@@ -109,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
                                     String email = list.get(3);
 
                                     currentuser = new User(user_id, username, email);
+                                    currentuser.importposts();
+                                    currentuser.importfriends();
+                                    currentuser.importrequests();
                                     profilepage(v);
 
                                 } catch (JSONException e) {
@@ -240,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
     }
     //-------Functions To Move Between Pages-------//
     public void signuppage(View v){
-        setContentView(R.layout.signupactivity_main);
+        setContentView(R.layout.signup_main);
     }
 
     public void loginpage(View v){
@@ -254,77 +259,42 @@ public class MainActivity extends AppCompatActivity {
     public void homepage(View v){
         setContentView(R.layout.homepage_main);
         ArrayList<Post> postfeed = new ArrayList<>();
-        for (Integer friendid : currentuser.getFriends()){
-            postfeed.addAll(getposts(friendid));
-        }
         RecyclerView postfeedview = findViewById(R.id.postfeedRecyclerView);
-
         postfeedview.setLayoutManager(new LinearLayoutManager(this));
-        PostFeedAdapter adapter = new PostFeedAdapter(this,postfeed);
+        PostFeedAdapter adapter = new PostFeedAdapter(this, postfeed);
         postfeedview.setAdapter(adapter);
 
 
-    }
-    public ArrayList<Post> getposts(Integer UserId){
-        ArrayList<Post> posts = new ArrayList<>();
-        String url = "https://lamp.ms.wits.ac.za/home/s2798790/importposts.php?user_id=" + UserId;
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (response.isSuccessful()){
-                    final String responsebody = response.body().string();
-                    if (!responsebody.equals("NO POSTS")){
-                        try {
-                            JSONArray ja = new JSONArray(responsebody);
-                            ArrayList<String> list = new ArrayList<String>();
-                            for (int i=0; i<ja.length();i++){
-                                Iterator<String> keys = ja.getJSONObject(i).keys();
-                                while (keys.hasNext()){
-                                    list.add(ja.getJSONObject(i).getString(keys.next()));
-                                }
-                                int post_id = Integer.parseInt(list.get(0));
-                                int user_id = Integer.parseInt(list.get(1));
-                                String content = list.get(2);
-                                String datetime = list.get(3);
-                                int likes = Integer.parseInt(list.get(4));
-
-                                Post post = new Post(post_id,user_id,content,datetime,likes);
-                                posts.add(post);
-                                list.clear();
-                            }
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-
+        for (Integer friendid : currentuser.getFriends()) {
+            getposts(friendid, new PostCallback() {
+                @Override
+                public void onPostsReceived(ArrayList<Post> posts) {
+                    runOnUiThread(() -> {
+                        postfeed.addAll(posts);
+                        adapter.notifyDataSetChanged();
+                    });
                 }
-            }
-        });
-        return posts;
+
+                @Override
+                public void onError(Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
+
     public void profilepage(View v){
-        setContentView(R.layout.personal_profile_main2);
+        setContentView(R.layout.personal_profile_main);
         TextView username = findViewById(R.id.username);
         Button friendnum = findViewById(R.id.FollowerCount_btn);
         TextView postnum = findViewById(R.id.PostsCount_txt);
-        RecyclerView myposts = findViewById(R.id.postRecyclerView);
+        //RecyclerView myposts = findViewById(R.id.postRecyclerView);
 
         RecyclerView recyclerView = findViewById(R.id.postRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         MyPostAdapter adapter = new MyPostAdapter(this, currentuser);
         recyclerView.setAdapter(adapter);
+
 
         username.setText(currentuser.getUsername());
         postnum.setText(Integer.toString(currentuser.numposts()));
@@ -334,11 +304,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void notificationpage(View v){
-        setContentView(R.layout.notifications_main);
+        setContentView(R.layout.notifications_new);
     }
 
     public void editprofilepage(View v){
-        setContentView(R.layout.edit_pfp);
+        setContentView(R.layout.new_edit_pfp);
     }
     public void settingspage(View v){
         setContentView(R.layout.settings_main);
@@ -353,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView friendrequestlist = findViewById(R.id.Requests_list);
         ArrayList<User> requests = new ArrayList<>();
 
-        requests = getuser(currentuser.requests, requests);
+        requests = getuser(currentuser.requests);
 
         FriendRequestAdapter adapter = new FriendRequestAdapter(this, requests);
 
@@ -366,7 +336,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.logout_main);
     }
 
-    protected ArrayList<User> getuser(ArrayList<Integer> user_ids, ArrayList<User> users){
+    protected ArrayList<User> getuser(ArrayList<Integer> user_ids){
+        ArrayList<User> users = new ArrayList<>();
         for (Integer user_id : user_ids){
             String url = "https://lamp.ms.wits.ac.za/home/s2798790/getuser.php?user_id=" + user_id;
             OkHttpClient client = new OkHttpClient();
@@ -412,5 +383,64 @@ public class MainActivity extends AppCompatActivity {
             });
         }
         return users;
+    }
+
+    public interface PostCallback {
+        void onPostsReceived(ArrayList<Post> posts);
+        void onError(Exception e);
+    }
+
+    public void getposts(Integer UserId, PostCallback callback){
+        ArrayList<Post> posts = new ArrayList<>();
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/importposts.php?user_id=" + UserId;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    final String responsebody = response.body().string();
+                    if (!responsebody.equals("NO POSTS")) {
+                        try {
+                            JSONArray ja = new JSONArray(responsebody);
+                            ArrayList<String> list = new ArrayList<String>();
+                            for (int i=0; i<ja.length();i++){
+                                Iterator<String> keys = ja.getJSONObject(i).keys();
+                                while (keys.hasNext()){
+                                    list.add(ja.getJSONObject(i).getString(keys.next()));
+                                }
+                                int post_id = Integer.parseInt(list.get(0));
+                                int user_id = Integer.parseInt(list.get(1));
+                                String content = list.get(2);
+                                String datetime = list.get(3);
+                                int likes = Integer.parseInt(list.get(4));
+
+                                Post post = new Post(post_id,user_id,content,datetime,likes);
+                                posts.add(post);
+                                list.clear();
+                            }
+                            callback.onPostsReceived(posts);
+                        } catch (JSONException e) {
+                            callback.onError(e);
+                        }
+                    } else {
+                        callback.onPostsReceived(new ArrayList<>()); // Empty list if "NO POSTS"
+                    }
+                } else {
+                    callback.onError(new IOException("Unsuccessful response"));
+                }
+            }
+        });
     }
 }

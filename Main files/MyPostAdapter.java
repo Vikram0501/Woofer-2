@@ -32,7 +32,7 @@ class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.MyViewHolder> {
     public void onBindViewHolder(@NonNull MyPostAdapter.MyViewHolder holder, int position) {
         holder.username.setText(currentuser.getUsername());
         holder.content.setText(posts.get(position).getContent());
-        holder.datetime.setText(posts.get(position).getDatatime());
+        holder.datetime.setText(posts.get(position).getDatetime());
         holder.likes.setText(String.valueOf(posts.get(position).getLikes()));
     }
 
