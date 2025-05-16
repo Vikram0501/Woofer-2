@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -322,11 +323,26 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerView friendrequestlist = findViewById(R.id.Requests_list);
         ArrayList<User> requests = new ArrayList<>();
-
-        requests = getuser(currentuser.requests);
-
+        friendrequestlist.setLayoutManager(new LinearLayoutManager(this));
         FriendRequestAdapter adapter = new FriendRequestAdapter(this, requests);
+        friendrequestlist.setAdapter(adapter);
 
+        for (Integer request_id : currentuser.requests){
+            getuser(request_id, new UserCallback() {
+                @Override
+                public void onUserReceived(User user) {
+                    runOnUiThread(() -> {
+                        requests.add(user);
+                        adapter.notifyDataSetChanged();
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     public void deletepage(View v){
@@ -336,53 +352,60 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.logout_main);
     }
 
-    protected ArrayList<User> getuser(ArrayList<Integer> user_ids){
-        ArrayList<User> users = new ArrayList<>();
-        for (Integer user_id : user_ids){
-            String url = "https://lamp.ms.wits.ac.za/home/s2798790/getuser.php?user_id=" + user_id;
-            OkHttpClient client = new OkHttpClient();
+    public interface UserCallback {
+        void onUserReceived(User user);
+        void onError(Exception e);
+    }
 
-            Request request = new Request.Builder()
-                    .url(url)
-                    .build();
+    protected void getuser(Integer user_id, MainActivity.UserCallback callback){
+        User user = new User(0, null, null);
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/getuser.php?user_id=" + user_id;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
 
 
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    e.printStackTrace();
-                }
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+                callback.onError(e);
+            }
 
-                @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    if (response.isSuccessful()){
-                        String responsebody = response.body().string();
-                        if (responsebody.equals("ERR: USER NOT FOUND")){
-                        }
-                        else{
-                            try {
-                                JSONObject jo = new JSONObject(responsebody);
-                                ArrayList<String> list = new ArrayList<String>();
-                                Iterator<String> keys = jo.keys();
-                                while (keys.hasNext()){
-                                    list.add(jo.getString(keys.next()));
-                                }
-                                int user_id = Integer.parseInt(list.get(0));
-                                String username = list.get(1);
-                                String email = list.get(3);
-
-                                User user = new User(user_id, username, email);
-                                users.add(user);
-
-                            } catch (JSONException e) {
-                                throw new RuntimeException(e);
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    final String responsebody = response.body().string();
+                    if (!responsebody.equals("ERR: USER NOT FOUND")) {
+                        try {
+                            JSONObject jo = new JSONObject(responsebody);
+                            ArrayList<String> list = new ArrayList<String>();
+                            Iterator<String> keys = jo.keys();
+                            while (keys.hasNext()){
+                                list.add(jo.getString(keys.next()));
                             }
+                            int user_id = Integer.parseInt(list.get(0));
+                            String username = list.get(1);
+                            String email = list.get(3);
+
+                            user.setUserId(user_id);
+                            user.setUsername(username);
+                            user.setEmail(email);
+
+                            callback.onUserReceived(user);
+                        } catch (JSONException e) {
+                            callback.onError(e);
                         }
+                    } else {
+
                     }
+                } else {
+                    callback.onError(new IOException("Unsuccessful response"));
                 }
-            });
-        }
-        return users;
+            }
+        });
     }
 
     public interface PostCallback {
@@ -435,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
                             callback.onError(e);
                         }
                     } else {
-                        callback.onPostsReceived(new ArrayList<>()); // Empty list if "NO POSTS"
+                        callback.onPostsReceived(new ArrayList<>());
                     }
                 } else {
                     callback.onError(new IOException("Unsuccessful response"));

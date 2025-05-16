@@ -1,6 +1,7 @@
 package com.example.testing;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
     @Override
     public void onBindViewHolder(@NonNull FriendRequestAdapter.MyViewHolder holder, int position) {
+        Log.d("AdapterBind", "Binding: " + FriendRequests.get(position).getUsername());
         holder.username.setText(FriendRequests.get(position).getUsername());
         //holder.profilepic.
     }

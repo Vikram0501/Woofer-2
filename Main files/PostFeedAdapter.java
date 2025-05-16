@@ -78,7 +78,7 @@ public class PostFeedAdapter extends RecyclerView.Adapter<PostFeedAdapter.MyView
         void onError(Exception e);
     }
 
-    protected User getuser(Integer user_id, UserCallback callback){
+    protected void getuser(Integer user_id, UserCallback callback){
         User user = new User(0, null, null);
         String url = "https://lamp.ms.wits.ac.za/home/s2798790/getuser.php?user_id=" + user_id;
         OkHttpClient client = new OkHttpClient();
@@ -127,6 +127,5 @@ public class PostFeedAdapter extends RecyclerView.Adapter<PostFeedAdapter.MyView
                 }
             }
         });
-        return user;
     }
 }
