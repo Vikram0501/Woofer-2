@@ -5,59 +5,57 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="#0A0A0A"
     android:gravity="center"
     tools:context=".MainActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/black"
-        tools:ignore="DuplicateIds">
+    <!--search bar-->
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/postRecyclerView"
-            android:layout_width="415dp"
-            android:layout_height="587dp"
-            android:clipToPadding="false"
-            android:padding="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.416"
-            tools:ignore="SpeakableTextPresentCheck" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/postfeedRecyclerView"
+        android:layout_width="415dp"
+        android:layout_height="587dp"
+        android:clipToPadding="false"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.416"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchView"
         android:layout_width="408dp"
         android:layout_height="52dp"
-        android:background="@drawable/search_view_bg"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginBottom="675dp"
+        android:background="@drawable/rainbow_border_bg"
         app:iconifiedByDefault="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:queryHint="Search here..."
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="4dp" />
+        tools:ignore="MissingConstraints" />
 
+    <!--android:background="@drawable/search_view_bg"-->
     <!-- scroll bar-->
     <HorizontalScrollView
         android:layout_width="360dp"
         android:layout_height="70dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="31dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="645dp"
+        android:layout_marginEnd="26dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/search_view_bg"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -70,6 +68,7 @@
                 android:layout_marginEnd="5dp"
                 android:backgroundTint="#0A0A0A"
                 android:foreground="@drawable/profileicon"
+                android:onClick="profilepage"
                 tools:ignore="SpeakableTextPresentCheck" />
 
             <FrameLayout
@@ -83,6 +82,7 @@
                     android:layout_marginEnd="23dp"
                     android:backgroundTint="#0A0A0A"
                     android:foreground="@drawable/homeicon"
+                    android:onClick="homepage"
                     tools:ignore="SpeakableTextPresentCheck" />
 
                 <ImageView
@@ -103,6 +103,7 @@
                 android:layout_marginEnd="24dp"
                 android:backgroundTint="#0A0A0A"
                 android:foreground="@drawable/addposticon"
+                android:onClick="addpostpage"
                 tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
             <Button
@@ -112,6 +113,7 @@
                 android:layout_marginBottom="9dp"
                 android:backgroundTint="#0A0A0A"
                 android:foreground="@drawable/notificationicon"
+                android:onClick="notificationpage"
                 tools:ignore="SpeakableTextPresentCheck" />
 
         </LinearLayout>
