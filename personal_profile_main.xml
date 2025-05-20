@@ -129,23 +129,30 @@
     <HorizontalScrollView
         android:layout_width="360dp"
         android:layout_height="70dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="651dp"
-        android:layout_marginEnd="31dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="645dp"
+        android:layout_marginEnd="26dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/search_view_bg"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
+            <Button
+                android:layout_width="80dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="5dp"
+                android:backgroundTint="#0A0A0A"
+                android:foreground="@drawable/profileicon"
+                android:onClick="profilepage"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <FrameLayout
                 android:layout_width="80dp"
@@ -155,11 +162,11 @@
                 <Button
                     android:layout_width="80dp"
                     android:layout_height="50dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginEnd="23dp"
                     android:backgroundTint="#0A0A0A"
-                    android:foreground="@drawable/profileicon"
+                    android:foreground="@drawable/homeicon"
+                    android:onClick="homepage"
                     tools:ignore="SpeakableTextPresentCheck" />
-
 
                 <ImageView
                     android:id="@+id/homeBadge"
@@ -171,14 +178,6 @@
                     android:src="@drawable/onpageicon" />
             </FrameLayout>
 
-            <Button
-                android:layout_width="80dp"
-                android:layout_height="50dp"
-                android:layout_marginEnd="23dp"
-                android:backgroundTint="#0A0A0A"
-                android:foreground="@drawable/homeicon"
-                android:onClick="homepage"
-                tools:ignore="SpeakableTextPresentCheck" />
 
             <Button
                 android:layout_width="28dp"
