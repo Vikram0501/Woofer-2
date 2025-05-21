@@ -27,7 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/profile_icon" />
+        app:srcCompat="@drawable/profileicon" />
 
     <TextView
         android:id="@+id/username"
@@ -49,9 +49,9 @@
         android:id="@+id/Poststxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="132dp"
+        android:layout_marginStart="157dp"
         android:layout_marginTop="77dp"
-        android:layout_marginEnd="243dp"
+        android:layout_marginEnd="218dp"
         android:layout_marginBottom="635dp"
         android:text="Posts"
         android:textColor="@android:color/white"
@@ -60,30 +60,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <TextView
         android:id="@+id/Followerstxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="210dp"
+        android:layout_marginStart="280dp"
         android:layout_marginTop="77dp"
-        android:layout_marginEnd="140dp"
+        android:layout_marginEnd="85dp"
         android:layout_marginBottom="635dp"
-        android:text="Followers"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/Followingtxt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="306dp"
-        android:layout_marginTop="77dp"
-        android:layout_marginEnd="45dp"
-        android:layout_marginBottom="635dp"
-        android:text="Following"
+        android:text="Friends"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -92,43 +78,28 @@
 
     <Button
         android:id="@+id/FollowerCount_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="195dp"
+        android:layout_width="57dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="274dp"
         android:layout_marginTop="112dp"
-        android:layout_marginEnd="128dp"
-        android:layout_marginBottom="571dp"
+        android:layout_marginEnd="80dp"
+        android:layout_marginBottom="572dp"
         android:backgroundTint="@android:color/black"
         android:text="0"
+        android:onClick="friendpage"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/FollowingCount_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="295dp"
-        android:layout_marginTop="112dp"
-        android:layout_marginEnd="28dp"
-        android:layout_marginBottom="571dp"
-        android:backgroundTint="@android:color/black"
-        android:text="0"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
 
     <TextView
         android:id="@+id/PostsCount_txt"
-        android:layout_width="42dp"
-        android:layout_height="45dp"
-        android:layout_marginStart="132dp"
-        android:layout_marginTop="115dp"
-        android:layout_marginEnd="237dp"
-        android:layout_marginBottom="571dp"
+        android:layout_width="56dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="148dp"
+        android:layout_marginTop="112dp"
+        android:layout_marginEnd="207dp"
+        android:layout_marginBottom="573dp"
         android:gravity="center"
         android:text="0"
         android:textColor="@android:color/white"
@@ -147,8 +118,8 @@
         android:layout_marginBottom="675dp"
         android:adjustViewBounds="true"
         android:background="@null"
-        android:scaleType="fitCenter"
         android:onClick="settingspage"
+        android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -160,10 +131,9 @@
         android:layout_width="360dp"
         android:layout_height="70dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="651dp"
         android:layout_marginEnd="31dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/search_view_bg_xml"
+        android:background="@drawable/search_view_bg"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -185,11 +155,12 @@
                 <Button
                     android:layout_width="80dp"
                     android:layout_height="50dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginBottom="9dp"
                     android:backgroundTint="#0A0A0A"
-                    android:foreground="@drawable/profile_icon"
+                    android:foreground="@drawable/profileicon"
+                    android:onClick="profilepage"
                     tools:ignore="SpeakableTextPresentCheck" />
-
 
                 <ImageView
                     android:id="@+id/homeBadge"
@@ -198,7 +169,7 @@
                     android:layout_gravity="top|end"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="18dp"
-                    android:src="@drawable/on_page_icon" />
+                    android:src="@drawable/onpageicon" />
             </FrameLayout>
 
             <Button
@@ -206,9 +177,10 @@
                 android:layout_height="50dp"
                 android:layout_marginEnd="23dp"
                 android:backgroundTint="#0A0A0A"
-                android:foreground="@drawable/home_icon"
+                android:foreground="@drawable/homeicon"
                 android:onClick="homepage"
                 tools:ignore="SpeakableTextPresentCheck" />
+
 
             <Button
                 android:layout_width="28dp"
@@ -216,9 +188,10 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="24dp"
                 android:backgroundTint="#0A0A0A"
+                android:foreground="@drawable/addposticon"
                 android:onClick="addpostpage"
-                android:foreground="@drawable/add_post_icon"
                 tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+
 
             <Button
                 android:layout_width="80dp"
@@ -226,17 +199,20 @@
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="9dp"
                 android:backgroundTint="#0A0A0A"
+                android:foreground="@drawable/notificationicon"
                 android:onClick="notificationpage"
-                android:foreground="@drawable/notification_icon"
                 tools:ignore="SpeakableTextPresentCheck" />
+
+
 
         </LinearLayout>
     </HorizontalScrollView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/postRecyclerView"
-        android:layout_width="396dp"
-        android:layout_height="403dp"
+        android:layout_width="411dp"
+        android:layout_height="449dp"
+        android:layout_marginEnd="1dp"
         android:clipToPadding="false"
         android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -244,7 +220,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.731"
+        app:layout_constraintVertical_bias="0.652"
         tools:ignore="SpeakableTextPresentCheck" />
 
 
