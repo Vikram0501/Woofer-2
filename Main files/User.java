@@ -13,6 +13,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 import okhttp3.Call;
@@ -30,6 +33,8 @@ public class User {
     ArrayList<Integer> friends;
     ArrayList<Integer> requests;
 
+    HashSet<Integer> likedposts;
+
 
     public User(int i, String u, String e){
         UserId = i;
@@ -38,9 +43,52 @@ public class User {
         posts = new ArrayList<Post>();
         friends = new ArrayList<Integer>();
         requests = new ArrayList<Integer>();
-
+        likedposts = new HashSet<>();
     }
+    public void importlikes(){
+        likedposts = new HashSet<>();
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/getlikes.php?user_id=" + UserId;
+        OkHttpClient client = new OkHttpClient();
 
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    final String responsebody = response.body().string();
+                    if (!responsebody.equals("NO LIKES")){
+                        try {
+                            JSONArray ja = new JSONArray(responsebody);
+                            ArrayList<String> list = new ArrayList<String>();
+                            for (int i=0; i<ja.length();i++){
+                                Iterator<String> keys = ja.getJSONObject(i).keys();
+                                while (keys.hasNext()){
+                                    list.add(ja.getJSONObject(i).getString(keys.next()));
+                                }
+                                int post_id = Integer.parseInt(list.get(0));
+                                int user_id = Integer.parseInt(list.get(1));
+
+                                likedposts.add(post_id);
+                                list.clear();
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                }
+            }
+        });
+    }
     public void importposts(){
         posts.clear();
         String url = "https://lamp.ms.wits.ac.za/home/s2798790/importposts.php?user_id=" + UserId;
@@ -130,7 +178,6 @@ public class User {
                                 list.clear();
                             }
                         } catch (JSONException e) {
-                            Log.d("HTTP_BODY", "Raw response: " + responsebody);
                             throw new RuntimeException(e);
                         }
                     }
@@ -229,5 +276,14 @@ public class User {
 
     public ArrayList<Integer> getRequests() {
         return requests;
+    }
+
+    public int getposofreq(int user_id){
+        for (int i=0; i<requests.size(); i++){
+            if (requests.get(i) == user_id){
+                return i;
+            }
+        }
+        return -1;
     }
 }

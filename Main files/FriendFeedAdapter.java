@@ -1,0 +1,69 @@
+package com.example.testing;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+
+public class FriendFeedAdapter extends RecyclerView.Adapter<FriendFeedAdapter.MyViewHolder>{
+    Context context;
+    ArrayList<User> Friends;
+
+    private final FriendInt friendInt;
+    public FriendFeedAdapter(Context context, ArrayList<User> Friends, FriendInt friendInt){
+        this.context = context;
+        this.Friends = Friends;
+        this.friendInt = friendInt;
+    }
+    @NonNull
+    @Override
+    public FriendFeedAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.friends, parent, false);
+
+        return new FriendFeedAdapter.MyViewHolder(view, friendInt, Friends);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull FriendFeedAdapter.MyViewHolder holder, int position) {
+        holder.username.setText(Friends.get(position).getUsername());
+    }
+
+    @Override
+    public int getItemCount() {
+        return Friends.size();
+    }
+
+    public static class MyViewHolder extends RecyclerView.ViewHolder{
+
+        TextView username;
+        Button profile;
+        public MyViewHolder(@NonNull View itemView, FriendInt friendInt, ArrayList<User> Friends) {
+            super(itemView);
+            username = itemView.findViewById(R.id.username_poster);
+            profile = itemView.findViewById(R.id.view_post_button_poster);
+
+            profile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (friendInt != null){
+                        int pos = getAdapterPosition();
+
+                        if (pos != RecyclerView.NO_POSITION){
+                            friendInt.friendprofile(pos, Friends.get(pos));
+                        }
+                    }
+                }
+            });
+        }
+    }
+}

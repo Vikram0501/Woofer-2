@@ -7,6 +7,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -37,8 +39,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RequestInt, PostInt, ViewPostInt, FriendInt, MutualInt {
     public User currentuser;
+    FriendRequestAdapter reqadapter;
+    FriendFeedAdapter friendadapter;
+    MutualFeedAdapter mutualadapter;
+    PostFeedAdapter postfeedadapter;
+    PostFeedAdapter friendpostadapter;
+    MyPostAdapter mypostsadapter;
+    LikedPostAdapter likedpostadapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,21 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-    public void editpicture(View v){
-        ImageView profilepic = findViewById(R.id.imageView);
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-        ActivityResultLauncher<Intent> openGallery = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult o) {
-                        Uri uriImage = o.getData().getData();
-                        profilepic.setImageURI(uriImage);
-                    }
-                });
-        openGallery.launch(intent);
-    }
 
 
     //-------Login Button-------//
@@ -115,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
                                     currentuser.importposts();
                                     currentuser.importfriends();
                                     currentuser.importrequests();
+                                    currentuser.importlikes();
                                     profilepage(v);
 
                                 } catch (JSONException e) {
@@ -262,8 +257,8 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<Post> postfeed = new ArrayList<>();
         RecyclerView postfeedview = findViewById(R.id.postfeedRecyclerView);
         postfeedview.setLayoutManager(new LinearLayoutManager(this));
-        PostFeedAdapter adapter = new PostFeedAdapter(this, postfeed);
-        postfeedview.setAdapter(adapter);
+        postfeedadapter = new PostFeedAdapter(this, postfeed, this, currentuser.likedposts);
+        postfeedview.setAdapter(postfeedadapter);
 
 
         for (Integer friendid : currentuser.getFriends()) {
@@ -272,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onPostsReceived(ArrayList<Post> posts) {
                     runOnUiThread(() -> {
                         postfeed.addAll(posts);
-                        adapter.notifyDataSetChanged();
+                        postfeedadapter.notifyDataSetChanged();
                     });
                 }
 
@@ -293,8 +288,8 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.postRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MyPostAdapter adapter = new MyPostAdapter(this, currentuser);
-        recyclerView.setAdapter(adapter);
+        mypostsadapter = new MyPostAdapter(this, currentuser, this);
+        recyclerView.setAdapter(mypostsadapter);
 
 
         username.setText(currentuser.getUsername());
@@ -306,6 +301,43 @@ public class MainActivity extends AppCompatActivity {
 
     public void notificationpage(View v){
         setContentView(R.layout.notifications_new);
+
+        ArrayList<User> likedby = new ArrayList<>();
+        RecyclerView likedpostfeed = findViewById(R.id.likes_recycler_view);
+        likedpostfeed.setLayoutManager(new LinearLayoutManager(this));
+        likedpostadapter = new LikedPostAdapter(this, likedby, this);
+        likedpostfeed.setAdapter(likedpostadapter);
+        for (Post post : currentuser.posts){
+            int post_id = post.getPost_id();
+            getlikeby(post_id, new LikedbyCallback() {
+                @Override
+                public void onLikesReceived(ArrayList<Integer> user_ids) {
+                    for (Integer user_id : user_ids){
+                        if (user_id != currentuser.getUserId()){
+                            getuser((Integer) user_id, new UserCallback() {
+                                @Override
+                                public void onUserReceived(User user) {
+                                    runOnUiThread(() -> {
+                                        likedby.add(user);
+                                        likedpostadapter.notifyDataSetChanged();
+                                    });
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     public void editprofilepage(View v){
@@ -324,8 +356,8 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView friendrequestlist = findViewById(R.id.Requests_list);
         ArrayList<User> requests = new ArrayList<>();
         friendrequestlist.setLayoutManager(new LinearLayoutManager(this));
-        FriendRequestAdapter adapter = new FriendRequestAdapter(this, requests);
-        friendrequestlist.setAdapter(adapter);
+        reqadapter = new FriendRequestAdapter(this, requests, this);
+        friendrequestlist.setAdapter(reqadapter);
 
         for (Integer request_id : currentuser.requests){
             getuser(request_id, new UserCallback() {
@@ -333,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onUserReceived(User user) {
                     runOnUiThread(() -> {
                         requests.add(user);
-                        adapter.notifyDataSetChanged();
+                        reqadapter.notifyDataSetChanged();
                     });
                 }
 
@@ -352,6 +384,333 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.logout_main);
     }
 
+    public void friendpage(View v){
+        setContentView(R.layout.friends_list);
+
+        RecyclerView friendlist = findViewById(R.id.Friends_list);
+        ArrayList<User> friends = new ArrayList<>();
+        friendlist.setLayoutManager(new LinearLayoutManager(this));
+        friendadapter = new FriendFeedAdapter(this, friends, this);
+        friendlist.setAdapter(friendadapter);
+
+        for (Integer friend_id : currentuser.friends){
+            getuser(friend_id, new UserCallback() {
+                @Override
+                public void onUserReceived(User user) {
+                    runOnUiThread(() -> {
+                        friends.add(user);
+                        friendadapter.notifyDataSetChanged();
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
+
+    //Interface functions and MISC
+    @Override
+    public void onAccept(int user_id, int position) {
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/acceptfriend.php?user1_id=" + user_id + "&user2_id=" + currentuser.getUserId();
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    String responsebody = response.body().string();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (responsebody.equals("SUCCESS: FRIEND ADDED")){
+                                remove(user_id, position);
+                                currentuser.friends.add(user_id);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public void onReject(int user_id, int position) {
+
+    }
+
+    @Override
+    public void remove(int user_id, int position) {
+        currentuser.requests.remove(currentuser.getposofreq(user_id));
+        reqadapter.notifyItemRemoved(position);
+    }
+
+    @Override
+    public void Like(int position, int post_id) {
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/like.php?post_id=" + post_id + "&user_id=" + currentuser.getUserId();
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    String responsebody = response.body().string();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!responsebody.equals("SUCCESS: LIKE ADDED")) {
+                                Log.d("ERROR", responsebody);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+        currentuser.likedposts.add(post_id);
+    }
+
+    @Override
+    public void Unlike(int position, int post_id) {
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/unlike.php?post_id=" + post_id + "&user_id=" + currentuser.getUserId();
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    String responsebody = response.body().string();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!responsebody.equals("SUCCESS: LIKE REMOVED")) {
+                                Log.d("ERROR", responsebody);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+        currentuser.likedposts.remove(post_id);
+    }
+
+    @Override
+    public void viewpost(int pos) {
+        setContentView(R.layout.personal_profile_main);
+    }
+
+    @Override
+    public void friendprofile(int pos, User user) {
+        setContentView(R.layout.friend_profile);
+        TextView friend_username = findViewById(R.id.friend_username);
+        TextView friend_postnum = findViewById(R.id.friend_postscount_txt);
+        Button friend_friendnum = findViewById(R.id.friend_followercount_btn);
+
+        friend_username.setText(user.getUsername());
+        ArrayList<User> mutuals = new ArrayList<>();
+
+        RecyclerView friendpostfeed = findViewById(R.id.friendpostRecyclerView);
+        ArrayList<Post> friendposts = new ArrayList<>();
+        friendpostfeed.setLayoutManager(new LinearLayoutManager(this));
+        friendpostadapter = new PostFeedAdapter(this, friendposts, this, currentuser.likedposts);
+        friendpostfeed.setAdapter(friendpostadapter);
+
+        getposts(user.UserId, new PostCallback() {
+            @Override
+            public void onPostsReceived(ArrayList<Post> posts) {
+                runOnUiThread(() -> {
+                    friendposts.addAll(posts);
+                    friendpostadapter.notifyDataSetChanged();
+                    friend_postnum.setText(String.valueOf(posts.size()));
+                });
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        getfriends(user.UserId, new FriendCallback() {
+            @Override
+            public void onFriendsReceived(ArrayList<Integer> friends_ids) {
+                runOnUiThread(() -> {
+                    friend_friendnum.setText(String.valueOf(friends_ids.size()));
+                    for (Integer friend_id : friends_ids){
+                        getuser(friend_id, new UserCallback() {
+                            @Override
+                            public void onUserReceived(User user) {
+                                runOnUiThread(() -> {
+                                    mutuals.add(user);
+                                });
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        friend_friendnum.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setContentView(R.layout.mutuals_list);
+                ImageButton back = findViewById(R.id.imageButton);
+                RecyclerView mutuallist = findViewById(R.id.Mutuals_list);
+                mutuallist.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                mutualadapter = new MutualFeedAdapter(MainActivity.this, mutuals, MainActivity.this, currentuser.UserId, currentuser.friends);
+                mutuallist.setAdapter(mutualadapter);
+
+                back.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        friendprofile(0, user);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    public void sendrequest(int user_id) {
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/friendrequest.php?user1_id=" + currentuser.getUserId() + "&user2_id=" + user_id;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    String responsebody = response.body().string();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (responsebody.equals("SUCCESS: REQUEST SENT")){
+                            }
+                            else{
+                                Log.d("Err", "Friend Request error");
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    public interface FriendCallback {
+        void onFriendsReceived(ArrayList<Integer> friends);
+        void onError(Exception e);
+    }
+
+    protected  void getfriends(Integer user_id, MainActivity.FriendCallback callback){
+        ArrayList<Integer> friends = new ArrayList<>();
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/importfriends.php?user_id=" + user_id;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        //2800630
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    final String responsebody = response.body().string();
+                    if (!responsebody.equals("NO FRIENDS")) {
+                        try {
+                            JSONArray ja = new JSONArray(responsebody);
+                            ArrayList<String> list = new ArrayList<String>();
+                            for (int i=0; i<ja.length();i++){
+                                Iterator<String> keys = ja.getJSONObject(i).keys();
+                                while (keys.hasNext()){
+                                    list.add(ja.getJSONObject(i).getString(keys.next()));
+                                }
+                                int user_sender = Integer.parseInt(list.get(0));
+                                int user_receiver = Integer.parseInt(list.get(1));
+
+                                if (user_sender == user_id){
+                                    friends.add(user_receiver);
+                                }
+                                else if (user_receiver == user_id){
+                                    friends.add(user_sender);
+                                }
+                                list.clear();
+                            }
+
+                            callback.onFriendsReceived(friends);
+                        } catch (JSONException e) {
+                            callback.onError(e);
+                        }
+                    } else {
+                        callback.onFriendsReceived(new ArrayList<>());
+                    }
+                } else {
+                    callback.onError(new IOException("Unsuccessful response"));
+                }
+            }
+        });
+    }
+
     public interface UserCallback {
         void onUserReceived(User user);
         void onError(Exception e);
@@ -367,6 +726,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
 
+        //2800630
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -413,7 +773,7 @@ public class MainActivity extends AppCompatActivity {
         void onError(Exception e);
     }
 
-    public void getposts(Integer UserId, PostCallback callback){
+    protected void getposts(Integer UserId, PostCallback callback){
         ArrayList<Post> posts = new ArrayList<>();
         String url = "https://lamp.ms.wits.ac.za/home/s2798790/importposts.php?user_id=" + UserId;
         OkHttpClient client = new OkHttpClient();
@@ -459,6 +819,60 @@ public class MainActivity extends AppCompatActivity {
                         }
                     } else {
                         callback.onPostsReceived(new ArrayList<>());
+                    }
+                } else {
+                    callback.onError(new IOException("Unsuccessful response"));
+                }
+            }
+        });
+    }
+
+    public interface LikedbyCallback{
+        void onLikesReceived(ArrayList<Integer> user_id);
+        void onError(Exception e);
+    }
+    protected  void getlikeby(Integer post_id, LikedbyCallback callback){
+        ArrayList<Integer> users = new ArrayList<>();
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/likedby.php?post_id=" + post_id;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    final String responsebody = response.body().string();
+                    if (!responsebody.equals("NO LIKES")) {
+                        try {
+                            JSONArray ja = new JSONArray(responsebody);
+                            ArrayList<String> list = new ArrayList<String>();
+                            for (int i=0; i<ja.length();i++){
+                                Iterator<String> keys = ja.getJSONObject(i).keys();
+                                while (keys.hasNext()){
+                                    list.add(ja.getJSONObject(i).getString(keys.next()));
+                                }
+                                int post_id = Integer.parseInt(list.get(0));
+                                int user_id = Integer.parseInt(list.get(1));
+
+                                users.add(user_id);
+                                list.clear();
+                            }
+                            callback.onLikesReceived(users);
+                        } catch (JSONException e) {
+                            callback.onError(e);
+                        }
+                    } else {
+                        callback.onLikesReceived(new ArrayList<>());
                     }
                 } else {
                     callback.onError(new IOException("Unsuccessful response"));
