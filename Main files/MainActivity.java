@@ -1,4 +1,4 @@
-package com.example.woofer;
+package com.example.testing;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -7,10 +7,11 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResult;
@@ -19,10 +20,11 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.woofer.Post;
+import com.example.testing.Post;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
@@ -45,7 +47,9 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
     FriendRequestAdapter reqadapter;
     FriendFeedAdapter friendadapter;
     MutualFeedAdapter mutualadapter;
+    MutualFeedAdapter searchadapter;
     PostFeedAdapter postfeedadapter;
+    PostFeedAdapter mylikedadapter;
     PostFeedAdapter friendpostadapter;
     MyPostAdapter mypostsadapter;
     LikedPostAdapter likedpostadapter;
@@ -57,9 +61,6 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
         setContentView(R.layout.loginactivity_main);
 
     }
-
-
-
     //-------Login Button-------//
     public void login(View v){
         TextView usernametxt =  findViewById(R.id.Usernametxt);
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
                         @Override
                         public void run() {
                             if (responsebody.equals("ERR: USER NOT FOUND")){
-                                //**add error message**
+                                Toast.makeText(getApplicationContext(), "Wrong Username/Password", Toast.LENGTH_SHORT).show();
                                 usernametxt.setText("");
                                 passwordtxt.setText("");
                             }
@@ -164,31 +165,36 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
                         @Override
                         public void run() {
                             if (responsebody.equals("ERR: USERNAME ALREADY IN USE")){
-                                usernametxt.setText("username already in use");
+                                Toast.makeText(getApplicationContext(), "Username in Use Already", Toast.LENGTH_SHORT).show();
+                                usernametxt.setText("");
                                 passwordtxt.setText("");
                                 confirmpasstxt.setText("");
                                 emailtxt.setText("");
                             }
                             else if(responsebody.equals("ERR: MISSING FIELDS")){
-                                //**Placeholder**
+                                Toast.makeText(getApplicationContext(), "Fill in All Fields", Toast.LENGTH_SHORT).show();
+                                usernametxt.setText("");
                                 passwordtxt.setText("");
                                 confirmpasstxt.setText("");
                                 emailtxt.setText("");
                             }
                             else if (responsebody.equals("ERR: FAILED TO REGISTER")){
-                                usernametxt.setText("failed to register");//**Placeholder**
+                                Toast.makeText(getApplicationContext(), "Failed to Register", Toast.LENGTH_SHORT).show();
+                                usernametxt.setText("");
                                 passwordtxt.setText("");
                                 confirmpasstxt.setText("");
                                 emailtxt.setText("");
                             }
                             else if (responsebody.equals("SUCCESS: USER REGISTERED")){
-                                loginpage(v);//**Placeholder**
+                                Toast.makeText(getApplicationContext(), "Signed Up", Toast.LENGTH_SHORT).show();
+                                loginpage(v);
                                 passwordtxt.setText("");
                                 confirmpasstxt.setText("");
                                 emailtxt.setText("");
                             }
                             else {
-                                usernametxt.setText("unknown error");//**Placeholder**
+                                Toast.makeText(getApplicationContext(), "Unknown Error", Toast.LENGTH_SHORT).show();
+                                usernametxt.setText("");
                                 passwordtxt.setText("");
                                 confirmpasstxt.setText("");
                                 emailtxt.setText("");
@@ -227,11 +233,13 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
                         @Override
                         public void run() {
                             if (responsebody.equals("SUCCESS: POST ADDED")){
-                                post.setText("added");//**Placeholder**
+                                post.setText("");
+                                Toast.makeText(getApplicationContext(), "Post Added", Toast.LENGTH_SHORT).show();
                                 currentuser.importposts();
                             }
                             else{
-                                post.setText("error");//**Placeholder**
+                                post.setText("");
+                                Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -278,11 +286,32 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
                 }
             });
         }
-        SearchView searchView = findViewById(R.id.searchView);
+
+        androidx.appcompat.widget.SearchView searchView = findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                getsearch(query, new SearchCallback() {
+                    @Override
+                    public void onSearchReceived(ArrayList<User> users) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                setContentView(R.layout.search_results);
+                                RecyclerView searchlist = findViewById(R.id.Search_list);
+                                searchlist.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                                searchadapter = new MutualFeedAdapter(MainActivity.this, users, MainActivity.this, currentuser.UserId, currentuser.friends);
+                                searchlist.setAdapter(searchadapter);
+                            }
+                        });
 
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        e.printStackTrace();
+                    }
+                });
                 return false;
             }
 
@@ -356,6 +385,63 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
 
     public void editprofilepage(View v){
         setContentView(R.layout.new_edit_pfp);
+        EditText usernametxt = findViewById(R.id.UsernameEditText);
+        EditText emailtxt = findViewById(R.id.emailEditText);
+        EditText passwordtxt = findViewById(R.id.passwordEditText);
+        usernametxt.setText("");
+        emailtxt.setText("");
+        passwordtxt.setText("");
+    }
+    public void editprofile(View v){
+        EditText usernametxt = findViewById(R.id.UsernameEditText);
+        EditText emailtxt = findViewById(R.id.emailEditText);
+        EditText passwordtxt = findViewById(R.id.passwordEditText);
+        String username = String.valueOf(usernametxt.getText());
+        String email = String.valueOf(emailtxt.getText());
+        String password = String.valueOf(passwordtxt.getText());
+        if (!password.isBlank()){
+            password = DigestUtils.sha256Hex(passwordtxt.getText().toString());
+        }
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/editprofile.php?user_id=" + currentuser.getUserId() +"&username=" + username + "&email=" + email +"&password=" + password;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    String responsebody = response.body().string();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (responsebody.equals("SUCCESS: DETAILS UPDATED")){
+                                Toast.makeText(getApplicationContext(), "Edits Made", Toast.LENGTH_SHORT).show();
+                                usernametxt.setText("");
+                                emailtxt.setText("");
+                                passwordtxt.setText("");
+                            }
+                            else{
+                                Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                                usernametxt.setText("");
+                                emailtxt.setText("");
+                                passwordtxt.setText("");
+                            }
+
+                        }
+                    });
+                }
+            }
+        });
+
     }
     public void settingspage(View v){
         setContentView(R.layout.settings_main);
@@ -363,6 +449,32 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
 
     public void mylikedpostspage(View v){
         setContentView(R.layout.list_my_liked_posts_main);
+        RecyclerView mylikedpostsfeed = findViewById(R.id.my_liked_posts_list);
+        ArrayList<Post> postfeed = new ArrayList<>();
+        mylikedpostsfeed.setLayoutManager(new LinearLayoutManager(this));
+        mylikedadapter = new PostFeedAdapter(this, postfeed, this, currentuser.likedposts);
+        mylikedpostsfeed.setAdapter(mylikedadapter);
+        for (Integer friendid : currentuser.getFriends()) {
+            getposts(friendid, new PostCallback() {
+                @Override
+                public void onPostsReceived(ArrayList<Post> posts) {
+                    runOnUiThread(() -> {
+                        for (Post post : posts){
+                            if (currentuser.likedposts.contains(post.getPost_id())){
+                                postfeed.add(post);
+                                mylikedadapter.notifyDataSetChanged();
+                            }
+                        }
+
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
     public void requestspage(View v){
         setContentView(R.layout.requests_list_main);
@@ -402,6 +514,7 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
         setContentView(R.layout.friends_list);
 
         RecyclerView friendlist = findViewById(R.id.Friends_list);
+        //2800630
         ArrayList<User> friends = new ArrayList<>();
         friendlist.setLayoutManager(new LinearLayoutManager(this));
         friendadapter = new FriendFeedAdapter(this, friends, this);
@@ -463,7 +576,36 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
 
     @Override
     public void onReject(int user_id, int position) {
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/rejectfriend.php?user1_id=" + user_id + "&user2_id=" + currentuser.getUserId();
+        OkHttpClient client = new OkHttpClient();
 
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    String responsebody = response.body().string();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (responsebody.equals("SUCCESS: REJECTED")){
+                                remove(user_id, position);
+                                Log.d("Removed", "True");
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     @Override
@@ -668,7 +810,7 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
         void onError(Exception e);
     }
 
-    protected  void getfriends(Integer user_id, FriendCallback callback){
+    protected  void getfriends(Integer user_id, MainActivity.FriendCallback callback){
         ArrayList<Integer> friends = new ArrayList<>();
         String url = "https://lamp.ms.wits.ac.za/home/s2798790/importfriends.php?user_id=" + user_id;
         OkHttpClient client = new OkHttpClient();
@@ -678,7 +820,6 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
                 .build();
 
 
-        //2800630
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -730,7 +871,64 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
         void onError(Exception e);
     }
 
-    protected void getuser(Integer user_id, UserCallback callback){
+    public interface SearchCallback {
+        void onSearchReceived(ArrayList<User> users);
+        void onError(Exception e);
+    }
+
+    protected void getsearch(String query, MainActivity.SearchCallback callback){
+        ArrayList<User> users = new ArrayList<>();
+        String url = "https://lamp.ms.wits.ac.za/home/s2798790/search.php?search=" + query;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    final String responsebody = response.body().string();
+                    if (!responsebody.equals("ERR: USER NOT FOUND")) {
+                        try {
+                            JSONArray ja = new JSONArray(responsebody);
+                            ArrayList<String> list = new ArrayList<String>();
+                            for (int i=0; i<ja.length();i++){
+                                Iterator<String> keys = ja.getJSONObject(i).keys();
+                                while (keys.hasNext()){
+                                    list.add(ja.getJSONObject(i).getString(keys.next()));
+                                }
+                                int user_id = Integer.parseInt(list.get(0));
+                                String username = list.get(1);
+                                String email = list.get(3);
+
+                                User user = new User(user_id, username, email);
+                                users.add(user);
+                                list.clear();
+                            }
+                            callback.onSearchReceived(users);
+                        } catch (JSONException e) {
+                            callback.onError(e);
+                        }
+                    } else {
+                        callback.onSearchReceived(new ArrayList<>());
+                    }
+                } else {
+                    callback.onError(new IOException("Unsuccessful response"));
+                }
+            }
+        });
+    }
+
+    protected void getuser(Integer user_id, MainActivity.UserCallback callback){
         User user = new User(0, null, null);
         String url = "https://lamp.ms.wits.ac.za/home/s2798790/getuser.php?user_id=" + user_id;
         OkHttpClient client = new OkHttpClient();

@@ -90,9 +90,13 @@ class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.MyViewHolder> {
                             if (areDrawablesIdentical(likebutton.getDrawable(), like)) {
                                 likebutton.setImageDrawable(unlike);
                                 postInt.Unlike(pos, posts.get(pos).post_id);
+                                posts.get(pos).setLikes(posts.get(pos).getLikes() -1);
+                                likes.setText(String.valueOf(posts.get(pos).getLikes()));
                             } else if (areDrawablesIdentical(likebutton.getDrawable(), unlike)) {
                                 likebutton.setImageDrawable(like);
                                 postInt.Like(pos, posts.get(pos).post_id);
+                                posts.get(pos).setLikes(posts.get(pos).getLikes() +1);
+                                likes.setText(String.valueOf(posts.get(pos).getLikes()));
                             } else {
                                 Log.d("Err", "like error");
                             }
@@ -104,12 +108,10 @@ class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.MyViewHolder> {
         public boolean areDrawablesIdentical(Drawable d1, Drawable d2) {
             if (d1 == null || d2 == null) return false;
 
-            // Compare constant states as a quick check
             if (d1.getConstantState() != null && d2.getConstantState() != null) {
                 return d1.getConstantState().equals(d2.getConstantState());
             }
 
-            // Fallback to comparing bitmaps if constant state is unreliable
             return false;
         }
     }
