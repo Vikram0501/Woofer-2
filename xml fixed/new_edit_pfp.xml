@@ -41,23 +41,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/pfp" />
 
-        <Button
-            android:id="@+id/edit_picture"
-            android:layout_width="202dp"
-            android:layout_height="59dp"
-            android:layout_marginStart="118dp"
-            android:layout_marginTop="236dp"
-            android:layout_marginEnd="139dp"
-            android:layout_marginBottom="438dp"
-            android:backgroundTint="@android:color/darker_gray"
-            android:onClick="editpicture"
-            android:text="Edit Picture"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
 
         <TextView
             android:id="@+id/username_edit_txt"
@@ -129,6 +112,7 @@
             android:layout_marginBottom="32dp"
             android:backgroundTint="@android:color/darker_gray"
             android:text="Save "
+            android:onClick="editprofile"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
