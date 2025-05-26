@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
     PostFeedAdapter friendpostadapter;
     MyPostAdapter mypostsadapter;
     LikedPostAdapter likedpostadapter;
-
+    int count = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -324,20 +324,59 @@ public class MainActivity extends AppCompatActivity implements RequestInt, PostI
 
     public void profilepage(View v){
         setContentView(R.layout.personal_profile_main);
+
         TextView username = findViewById(R.id.username);
         Button friendnum = findViewById(R.id.FollowerCount_btn);
         TextView postnum = findViewById(R.id.PostsCount_txt);
-        //RecyclerView myposts = findViewById(R.id.postRecyclerView);
 
         RecyclerView recyclerView = findViewById(R.id.postRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mypostsadapter = new MyPostAdapter(this, currentuser, this);
-        recyclerView.setAdapter(mypostsadapter);
-
-
         username.setText(currentuser.getUsername());
-        postnum.setText(Integer.toString(currentuser.numposts()));
-        friendnum.setText(Integer.toString(currentuser.numfriends()));
+        if (count == 0){
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            ArrayList<Post> postfeed = new ArrayList<>();
+
+            PostFeedAdapter adapter = new PostFeedAdapter(this, postfeed, this, currentuser.likedposts);
+            recyclerView.setAdapter(adapter);
+            getposts(currentuser.UserId, new PostCallback() {
+                @Override
+                public void onPostsReceived(ArrayList<Post> posts) {
+                    runOnUiThread(() -> {
+                        postfeed.addAll(posts);
+                        adapter.notifyDataSetChanged();
+                        postnum.setText(Integer.toString(postfeed.size()));
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            getfriends(currentuser.UserId, new FriendCallback() {
+                @Override
+                public void onFriendsReceived(ArrayList<Integer> friends) {
+                    runOnUiThread(() -> {
+                        friendnum.setText(Integer.toString(friends.size()));
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            });
+            count ++;
+        }
+        else{
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            mypostsadapter = new MyPostAdapter(this, currentuser, this);
+            recyclerView.setAdapter(mypostsadapter);
+
+
+            postnum.setText(Integer.toString(currentuser.numposts()));
+            friendnum.setText(Integer.toString(currentuser.numfriends()));
+        }
+
 
 
     }
