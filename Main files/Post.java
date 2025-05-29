@@ -1,4 +1,4 @@
-package com.example.testing;
+package com.example.woofer;
 
 public class Post {
     int post_id;

@@ -1,7 +1,6 @@
-package com.example.testing;
+package com.example.woofer;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,15 +24,15 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
     }
     @NonNull
     @Override
-    public FriendRequestAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.requests_main, parent, false);
 
-        return new FriendRequestAdapter.MyViewHolder(view, requestInt, FriendRequests);
+        return new MyViewHolder(view, requestInt, FriendRequests);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FriendRequestAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.username.setText(FriendRequests.get(position).getUsername());
         //holder.profilepic.
     }
@@ -66,6 +65,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
                         if (pos != RecyclerView.NO_POSITION){
                             requestInt.onAccept(FriendRequests.get(pos).getUserId(), pos);
+                            FriendRequests.remove(pos);
                         }
                     }
                 }
@@ -78,6 +78,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
                         if (pos != RecyclerView.NO_POSITION){
                             requestInt.onReject(FriendRequests.get(pos).getUserId(), pos);
+                            FriendRequests.remove(pos);
                         }
                     }
                 }

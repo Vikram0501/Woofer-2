@@ -1,4 +1,4 @@
-package com.example.testing;
+package com.example.woofer;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -33,14 +33,14 @@ class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.MyViewHolder> {
     }
     @NonNull
     @Override
-    public MyPostAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.item_post, parent, false);
-        return new MyPostAdapter.MyViewHolder(v, postInt, posts, context);
+        return new MyViewHolder(v, postInt, posts, context);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyPostAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.username.setText(currentuser.getUsername());
         holder.content.setText(posts.get(position).getContent());
         holder.datetime.setText(posts.get(position).getDatetime());

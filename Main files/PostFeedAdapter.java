@@ -1,4 +1,4 @@
-package com.example.testing;
+package com.example.woofer;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -14,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,7 +50,7 @@ public class PostFeedAdapter extends RecyclerView.Adapter<PostFeedAdapter.MyView
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        getuser(posts.get(position).user_id, new PostFeedAdapter.UserCallback() {
+        getuser(posts.get(position).user_id, new UserCallback() {
 
             @Override
             public void onUserReceived(User user) {

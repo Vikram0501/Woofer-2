@@ -1,4 +1,4 @@
-package com.example.testing;
+package com.example.woofer;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -23,14 +23,14 @@ public class LikedPostAdapter extends RecyclerView.Adapter<LikedPostAdapter.MyVi
     }
     @NonNull
     @Override
-    public LikedPostAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.item_like_main, parent, false);
-        return new LikedPostAdapter.MyViewHolder(view, viewPostInt);
+        return new MyViewHolder(view, viewPostInt);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LikedPostAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.username.setText(likedby.get(position).getUsername());
     }
 

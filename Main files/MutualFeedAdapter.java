@@ -1,4 +1,4 @@
-package com.example.testing;
+package com.example.woofer;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -11,7 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MutualFeedAdapter extends RecyclerView.Adapter<MutualFeedAdapter.MyViewHolder>{
@@ -29,15 +28,15 @@ public class MutualFeedAdapter extends RecyclerView.Adapter<MutualFeedAdapter.My
     }
     @NonNull
     @Override
-    public MutualFeedAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.friends, parent, false);
 
-        return new MutualFeedAdapter.MyViewHolder(view, mutualInt, Friends);
+        return new MyViewHolder(view, mutualInt, Friends);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MutualFeedAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.username.setText(Friends.get(position).getUsername());
         if (Friends.get(position).getUserId() == currentuser_id){
             holder.addfriend.setText("You");

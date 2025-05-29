@@ -1,22 +1,15 @@
-package com.example.testing;
-
-import android.util.Log;
-import android.widget.TextView;
+package com.example.woofer;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -280,7 +273,7 @@ public class User {
 
     public int getposofreq(int user_id){
         for (int i=0; i<requests.size(); i++){
-            if (requests.get(i) == user_id){
+            if (Objects.equals(requests.get(i),user_id)){
                 return i;
             }
         }

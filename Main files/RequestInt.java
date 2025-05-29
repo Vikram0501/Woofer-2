@@ -1,4 +1,4 @@
-package com.example.testing;
+package com.example.woofer;
 
 public interface RequestInt {
     void onAccept(int user_id, int position);

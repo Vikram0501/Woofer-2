@@ -1,4 +1,4 @@
-package com.example.testing;
+package com.example.woofer;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,8 +9,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -26,15 +24,15 @@ public class FriendFeedAdapter extends RecyclerView.Adapter<FriendFeedAdapter.My
     }
     @NonNull
     @Override
-    public FriendFeedAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.friends, parent, false);
 
-        return new FriendFeedAdapter.MyViewHolder(view, friendInt, Friends);
+        return new MyViewHolder(view, friendInt, Friends);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FriendFeedAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.username.setText(Friends.get(position).getUsername());
     }
 
