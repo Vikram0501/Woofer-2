@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp"
+    android:background="#0A0A0A">
+
+    <!-- Profile Picture -->
+    <ImageView
+        android:id="@+id/profile_image_requests"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/profileicon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Username -->
+    <TextView
+        android:id="@+id/username_request"
+        android:layout_width="148dp"
+        android:layout_height="31dp"
+        android:layout_marginStart="8dp"
+        android:text="Username"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/profile_image_requests"
+        app:layout_constraintEnd_toStartOf="@id/Accept"
+        app:layout_constraintStart_toEndOf="@id/profile_image_requests"
+        app:layout_constraintTop_toTopOf="@id/profile_image_requests" />
+
+    <!-- Accept Button -->
+    <Button
+        android:id="@+id/Accept"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Accept"
+        android:backgroundTint="@android:color/holo_green_dark"
+        app:layout_constraintEnd_toStartOf="@id/Reject"
+        app:layout_constraintTop_toTopOf="@id/profile_image_requests"
+        app:layout_constraintBottom_toBottomOf="@id/profile_image_requests" />
+
+    <!-- Reject Button -->
+    <Button
+        android:id="@+id/Reject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reject"
+        android:backgroundTint="@android:color/holo_red_dark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/profile_image_requests"
+        app:layout_constraintBottom_toBottomOf="@id/profile_image_requests" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

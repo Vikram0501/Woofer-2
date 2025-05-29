@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0A0A0A"
+    android:gravity="center"
+    tools:context=".MainActivity">
+
+    <!--search bar-->
+
+    <!-- scroll bar-->
+    <EditText
+        android:id="@+id/AddPosttxt"
+        android:layout_width="410dp"
+        android:layout_height="511dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="216dp"
+        android:ems="10"
+        android:gravity="top|start"
+        android:hint="Write here..."
+        android:inputType="text"
+        android:lines="5"
+        android:maxLines="10"
+        android:minHeight="48dp"
+        android:scrollbars="vertical"
+        android:textColor="@android:color/white"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/AddPostbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="129dp"
+        android:layout_marginTop="522dp"
+        android:layout_marginEnd="150dp"
+        android:layout_marginBottom="161dp"
+        android:backgroundTint="@android:color/darker_gray"
+        android:onClick="addpost"
+        android:text="Add Post"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <HorizontalScrollView
+        android:layout_width="360dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="31dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/search_view_bg"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="80dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="5dp"
+                android:backgroundTint="#0A0A0A"
+                android:foreground="@drawable/profileicon"
+                android:onClick="profilepage"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <Button
+                android:layout_width="80dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="24dp"
+                android:backgroundTint="#0A0A0A"
+                android:foreground="@drawable/homeicon"
+                android:onClick="homepage"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <FrameLayout
+                android:layout_width="53dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="0dp">
+
+                <Button
+                    android:layout_width="28dp"
+                    android:layout_height="23dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="20dp"
+                    android:backgroundTint="#0A0A0A"
+                    android:foreground="@drawable/addposticon"
+                    android:onClick="addpostpage"
+                    tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+
+                <ImageView
+                    android:id="@+id/homeBadge"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="20dp"
+                    android:src="@drawable/onpageicon" />
+            </FrameLayout>
+
+            <Button
+                android:layout_width="86dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginBottom="9dp"
+                android:backgroundTint="#0A0A0A"
+                android:foreground="@drawable/notificationicon"
+                android:onClick="notificationpage"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
